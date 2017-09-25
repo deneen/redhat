@@ -1,0 +1,11 @@
+---
+# tasks file for redhat
+
+- name: Register with the subscription-manager
+  become: yes
+  redhat_subscription:
+    state: present
+    username: "{{ lookup('env', 'SUBSCRIPTIONUSER') }}"
+    password: "{{ lookup('env', 'SUBSCRIPTIONPASS') }}"
+    autosubscribe: true
+    

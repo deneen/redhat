@@ -1,0 +1,53 @@
+---
+# tasks file for redhat
+
+- name: Register with the subscription-manager
+  become: yes
+  redhat_subscription:
+    state: present
+    username: "{{ lookup('env', 'SUBSCRIPTIONUSER') }}"
+    password: "{{ lookup('env', 'SUBSCRIPTIONPASS') }}"
+    autosubscribe: true
+
+- name: Enable extras and optional repositories
+  become: yes
+  redhat_repository:
+    name: "{{ item }}"
+    state: enabled
+  with_items:
+    "{{ repositories }}"
+    
+- name: Check if EPEL repo is already configured.
+  become: yes
+  stat: path="{{ epel_repofile_path }}"
+  register: epel_repofile_result
+ 
+- name: Install EPEL repo.
+  become: yes
+  yum:
+    name: "{{ epel_repo_url }}"
+    state: present
+  register: result
+  when: not epel_repofile_result.stat.exists
+ 
+- name: Import EPEL GPG key.
+  become: yes
+  rpm_key:
+    key: "{{ epel_repo_gpg_key_url }}"
+    state: present
+  when: not epel_repofile_result.stat.exists
+
+- name: Update packages
+  become: yes
+  yum:
+    name: '*'
+    state: latest
+
+- name: Install desired packages
+  become: yes
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    "{{ core_packages }}"
+    
