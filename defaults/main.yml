@@ -25,6 +25,7 @@ core_packages:
   - ntp
   - htop
   - iftop
+  - setroubleshoot
 
 repositories:
   - "rhel-{{ ansible_distribution_major_version }}-server-optional-rpms"
